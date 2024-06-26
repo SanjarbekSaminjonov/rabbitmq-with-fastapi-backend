@@ -8,7 +8,14 @@ from db_app.database import SessionLocal, engine
 
 
 models.Base.metadata.create_all(bind=engine)
-app = FastAPI()
+app = FastAPI(
+    title="RabbitMQ Broker Connections Controller",
+    description="This API is used to manage RabbitMQ connections.",
+    version="1.0.0",
+    docs_url=env.str("DOCS_URL"),
+    redoc_url=env.str("REDOC_URL"),
+    openapi_url=env.str("OPENAPI_URL"),
+)
 
 
 # Dependency

@@ -21,7 +21,7 @@ class Topic(Base):
     __tablename__ = "topics"
 
     id = Column(Integer, primary_key=True, index=True)
-    type = Column(String)
+    type = Column(String)  # choice 'write' or 'read'
     key = Column(String)
 
     project_id = Column(Integer, ForeignKey("projects.id"))
