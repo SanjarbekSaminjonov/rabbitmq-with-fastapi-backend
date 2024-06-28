@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   rabbitmq:
@@ -7,10 +7,10 @@ services:
     restart: always
     hostname: rabbitmq
     ports:
-      - "127.0.0.1:15672:15672"
-      - "127.0.0.1:5672:5672"
-      - "127.0.0.1:1888:1883"
-      - "15675:15675"
+      - "0.0.0.0:15672:15672"
+      - "0.0.0.0:5672:5672"
+      - "0.0.0.0:1883:1883"
+      - "0.0.0.0:15675:15675"
     env_file:
       - ./.env
 
@@ -20,8 +20,8 @@ services:
     restart: always
     hostname: web
     ports:
-      - "127.0.0.1:8555:8555"
-    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8555", "--reload"]
+      - "0.0.0.0:8555:8555"
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8555"]
     volumes:
       - ./web:/app
     env_file:
@@ -33,24 +33,11 @@ services:
     container_name: db
     hostname: db
     ports:
-      - "127.0.0.1:5432:5432"
+      - "0.0.0.0:5432:5432"
     env_file:
       - ./.env
     volumes:
       - db_data:/var/lib/postgresql/data
 
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   restart: always
-  #   env_file:
-  #     - ./.env
-  #   ports:
-  #     - "5050:80"
-  #   depends_on:
-  #     - db
-  #   volumes:
-  #     - pgadmin_data:/var/lib/pgadmin
-
 volumes:
   db_data:
-  # pgadmin_data:
