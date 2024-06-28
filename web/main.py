@@ -164,10 +164,13 @@ async def delete_client(username: str, db: Session = Depends(get_db)):
 @app.post("/broker/check_user/", tags=["broker"])
 async def check_user(request: Request, db: Session = Depends(get_db)) -> str:
     data = await request.form()
-    username = data.get("username")
-    password = data.get("password")
+    username: str = data.get("username") or ""
+    password: str = data.get("password") or ""
     if username == env.str("BROKER_USER") and password == env.str("BROKER_PASSWORD"):
         return PlainTextResponse("allow administrator")
+    if username.startswith("websocket/") and password == "saminjonov.uz":
+        client = crud.get_client(db, username.replace("websocket/", ""))
+        return PlainTextResponse("allow" if client else "deny")
     client = crud.get_client(db, username)
     if client and client.password == data.get("password"):
         return PlainTextResponse("allow")
@@ -192,7 +195,13 @@ async def check_resource(request: Request) -> str:
 @app.post("/broker/check_topic/", tags=["broker"])
 async def check_topic(request: Request, db: Session = Depends(get_db)) -> str:
     data = await request.form()
-    username = data.get("username")
+    username: str = data.get("username") or ""
+    if (
+        username.startswith("websocket/")
+        and data.get("permission") == "read"
+        and data.get("routing_key") == username.replace("/", ".")
+    ):
+        return PlainTextResponse("allow")
     if username == env.str("BROKER_USER"):
         return PlainTextResponse("allow")
     client = crud.get_client(db, username)
