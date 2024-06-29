@@ -1,4 +1,4 @@
-FROM rabbitmq:3.12.9-management
+FROM rabbitmq:3.13.3-management
 
 COPY ./conf/enabled_plugins /etc/rabbitmq/enabled_plugins
 COPY ./conf/rabbitmq.conf /etc/rabbitmq/rabbitmq.conf
