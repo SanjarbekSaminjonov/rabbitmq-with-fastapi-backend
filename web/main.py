@@ -88,8 +88,10 @@ async def delete_client(id: int, db: Session = Depends(get_db)) -> dict[str, boo
 @app.post("/broker/check_user/", tags=["broker"])
 async def check_user(request: Request, db: Session = Depends(get_db)) -> str:
     data = await request.form()
-    username: str = data.get("username") or ""
-    password: str = data.get("password") or ""
+    username: str = data.get("username")
+    password: str = data.get("password")
+    if not username or not password:
+        return PlainTextResponse("deny")
     if username == env.str("BROKER_USER") and password == env.str("BROKER_PASSWORD"):
         return PlainTextResponse("allow administrator")
     if username == env.str("SUPERUSER") and password == env.str("SUPERUSER_PASSWORD"):
