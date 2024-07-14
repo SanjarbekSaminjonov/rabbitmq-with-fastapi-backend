@@ -1,16 +1,28 @@
 services:
-  rabbitmq:
-    build: ./rabbitmq
-    container_name: rabbitmq
+  postgres:
+    image: postgres:15.0
     restart: always
-    hostname: rabbitmq
+    container_name: postgres
+    hostname: postgres
     ports:
-      - "0.0.0.0:15672:15672"
-      - "0.0.0.0:5672:5672"
-      - "0.0.0.0:1883:1883"
-      - "0.0.0.0:15675:15675"
+      - "5432:5432"
     env_file:
       - ./.env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "5433:80"
+    env_file:
+      - ./.env
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
 
   web:
     build: ./web
@@ -18,24 +30,30 @@ services:
     restart: always
     hostname: web
     ports:
-      - "0.0.0.0:8555:8555"
-    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8555"]
+      - "8000:8000"
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
     volumes:
       - ./web:/app
     env_file:
       - ./.env
+    depends_on:
+      - postgres
 
-  db:
-    image: postgres:15.0
+  rabbitmq:
+    build: ./rabbitmq
+    container_name: rabbitmq
     restart: always
-    container_name: db
-    hostname: db
+    hostname: rabbitmq
     ports:
-      - "0.0.0.0:5432:5432"
+      - "15672:15672"
+      - "5672:5672"
+      - "1883:1883"
+      - "15675:15675"
     env_file:
       - ./.env
-    volumes:
-      - db_data:/var/lib/postgresql/data
+    depends_on:
+      - web
 
 volumes:
-  db_data:
+  postgres-data:
+  pgadmin-data:

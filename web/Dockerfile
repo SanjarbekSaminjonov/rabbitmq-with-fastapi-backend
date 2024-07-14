@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY ./requirements.txt ./requirements.txt
 
-# cache packages
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-EXPOSE 8555
+EXPOSE 8000
