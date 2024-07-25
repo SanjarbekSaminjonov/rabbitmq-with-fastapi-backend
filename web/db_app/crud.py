@@ -1,3 +1,4 @@
+from sqlalchemy import exists
 from sqlalchemy.orm import Session
 
 from . import models, schemas
@@ -41,4 +42,9 @@ def delete_client(db: Session, id: int) -> None:
 
 
 def check_client(db: Session, username: str, password: str) -> bool:
-    return db.query(models.Client).filter(models.Client.username == username).exists()
+    return db.query(
+        exists().where(
+            models.Client.username == username, 
+            models.Client.password == password
+        )
+    ).scalar()
