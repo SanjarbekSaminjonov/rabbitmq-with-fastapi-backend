@@ -100,7 +100,7 @@ async def check_user(request: Request, db: Session = Depends(get_db)) -> str:
         return PlainTextResponse("deny")
     if crud.check_client(db, username, password):
         return PlainTextResponse("allow")
-    send_telegram_message(f"Invalid credentials for client {username} and password {password}")
+    await send_telegram_message(f"Invalid credentials for client {username} and password {password}")
     return PlainTextResponse("deny")
 
 

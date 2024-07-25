@@ -1,12 +1,15 @@
-import requests
-
+import aiohttp
 from settings import env
 
-def send_telegram_message(message: str) -> None:
-    requests.post(
-        env.str("TELEGRAM_BOT_API_URL"),
-        data={
-            "chat_id": env.str("TELEGRAM_CHAT_ID"),
-            "text": message,
-        },
-    )
+
+async def send_telegram_message(message: str) -> None:
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            f"https://api.telegram.org/bot{env.str('TELEGRAM_BOT_TOKEN')}/sendMessage",
+            data={
+                "chat_id": env.str("TELEGRAM_CHAT_ID"),
+                "text": message,
+                "parse_mode": "HTML",
+            },
+        ) as response:
+            return response
