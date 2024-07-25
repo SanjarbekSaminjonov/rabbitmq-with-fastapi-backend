@@ -1,11 +1,11 @@
-# from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
-from settings import env
 from db_app import crud, models, schemas
 from db_app.database import SessionLocal, engine
+from settings import env
+from utils.telegram import send_telegram_message
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -28,7 +28,6 @@ def get_db():
         db.close()
 
 
-"""
 @app.post("/clients/create/", response_model=schemas.ClientRead, tags=["clients"])
 async def create_client(
     client: schemas.Client, db: Session = Depends(get_db)
@@ -82,7 +81,6 @@ async def delete_client(id: int, db: Session = Depends(get_db)) -> dict[str, boo
         raise HTTPException(status_code=404, detail="Client not found")
     crud.delete_client(db, id)
     return {"deleted": True}
-"""
 
 
 @app.post("/broker/check_user/", tags=["broker"])
@@ -92,20 +90,17 @@ async def check_user(request: Request, db: Session = Depends(get_db)) -> str:
     password: str = data.get("password")
     if not username or not password:
         return PlainTextResponse("deny")
-    if username == env.str("BROKER_USER") and password == env.str("BROKER_PASSWORD"):
-        return PlainTextResponse("allow administrator")
-    if username == env.str("SUPERUSER") and password == env.str("SUPERUSER_PASSWORD"):
-        return PlainTextResponse("allow")
-    if env.bool("CREATE_CLIENT_AUTOMATICALLY"):
-        client = crud.get_client_by_username(db, username)
-        if client:
-            if client.password == password:
-                return PlainTextResponse("allow")
-            return PlainTextResponse("deny")
-        crud.create_client(db, schemas.Client(username=username, password=password))
-        return PlainTextResponse("allow")
+    if username == env.str("BROKER_USER"):
+        if password == env.str("BROKER_PASSWORD"):
+            return PlainTextResponse("allow administrator")
+        return PlainTextResponse("deny")
+    if username == env.str("SUPERUSER"):
+        if password == env.str("SUPERUSER_PASSWORD"):
+            return PlainTextResponse("allow")
+        return PlainTextResponse("deny")
     if crud.check_client(db, username, password):
         return PlainTextResponse("allow")
+    send_telegram_message(f"Invalid credentials for client {username} and password {password}")
     return PlainTextResponse("deny")
 
 
