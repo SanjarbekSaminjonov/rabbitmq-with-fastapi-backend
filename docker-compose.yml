@@ -13,10 +13,11 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    hostname: pgadmin
     container_name: pgadmin
     restart: always
     ports:
-      - "5433:80"
+      - "127.0.0.1:8080:80"
     env_file:
       - ./.env
     volumes:
@@ -47,14 +48,24 @@ services:
     restart: always
     hostname: rabbitmq
     ports:
-      - "15672:15672"
+      - "127.0.0.1:15672:15672"
       - "5672:5672"
-      - "1883:1883"
+      - "1884:1883"
       - "15675:15675"
     env_file:
       - ./.env
     depends_on:
       - web
+
+  nginx:
+    image: nginx:1.21-alpine
+    container_name: nginx
+    hostname: nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
 
 volumes:
   postgres_data:
