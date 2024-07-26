@@ -18,6 +18,8 @@ services:
     restart: always
     ports:
       - "127.0.0.1:8080:80"
+    expose:
+      - "8080"
     env_file:
       - ./.env
     volumes:
