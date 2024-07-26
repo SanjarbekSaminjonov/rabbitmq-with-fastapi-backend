@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name rabbitmq.2pay.uz;
+    server_name pgadmin.rabbitmq.2pay.uz;
 
     location = /favicon.ico { access_log off; log_not_found off; }
 
@@ -9,6 +9,6 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass http://rabbitmq:15672;
+        proxy_pass http://pgadmin:8080;
     }
 }
